@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Bootstrap Material Admin</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="all,follow">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <link rel="stylesheet" href="/static/css/style.default.css" id="theme-stylesheet">
+  </head>
+  <body>
+    <div class="page login-page">
+      <div class="container d-flex align-items-center">
+        <div class="form-holder has-shadow">
+          <div class="row">
+            <!-- Logo & Information Panel-->
+            <div class="col-lg-6">
+              <div class="info d-flex align-items-center">
+                <div class="content">
+                  <div class="logo">
+                    <h1>欢迎注册</h1>
+                  </div>
+                  <p>注册在线人脸识别系统</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 bg-white">
+              <div class="form d-flex align-items-center">
+                <div class="content">
+                     <form method="post" class="form-validate" id="registerForm" onsubmit="return check()">
+                      {% csrf_token %}
+                    <div class="form-group">
+                      <input id="register-email" class="input-material" type="text" name="registerEmail" placeholder="请输入邮箱" >
+								      <div class="invalid-feedback">
+								        	邮箱必须在2~20位之间,且符合格式
+								      </div>
+                    </div>
+                     <div class="form-group">
+                      <input id="register-username" class="input-material" type="text" name="registerUsername" placeholder="请输入用户名" >
+								      <div class="invalid-feedback">
+								        	用户名必须在2~10位之间
+								      </div>
+                    </div>
+                    <div class="form-group">
+                      <input id="register-password" class="input-material" type="password" name="registerPassword" placeholder="请输入密码"   >
+                    	<div class="invalid-feedback">
+								        	密码必须在6~10位之间
+								      </div>
+                    </div>
+                    <div class="form-group">
+                      <input id="register-passwords" class="input-material" type="password" name="registerPasswords" placeholder="确认密码"   >
+                    	<div class="invalid-feedback">
+								        	两次密码必须相同 且在6~10位之间
+								      </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                        <label><input type="checkbox" name="teacher" value="teacher">是否教师</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <button id="regbtn" type="submit" name="registerSubmit" class="btn btn-primary">注册</button>
+                        <span class="errors" style="color: red;">{{ error }}</span>
+                    </div>
+                  <small>已有账号?</small><a href="{% url "acc_login" %}" class="signup">登录</a>
+                     </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- JavaScript files-->
+    <script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script>
+            var flagEmail=false;
+    		var flagName=false;
+    		var flagPas=false;
+    		var flagPass=false;
+    	$(function(){
+    		var email,name,passWord,passWords;
+    		$("#register-email").change(function(){
+    			email=$("#register-email").val();
+    			var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+
+    			if(!reg.test(email)||email.length<2||email.length>20){
+    				$("#register-email").removeClass("form-control is-valid")
+    				$("#register-email").addClass("form-control is-invalid");
+    				flagEmail=false;
+    			}
+    			else{
+    				$("#register-email").removeClass("form-control is-invalid")
+    				$("#register-email").addClass("form-control is-valid");
+    				flagEmail=true;
+    			}
+    		})
+    		$("#register-username").change(function(){
+    			name=$("#register-username").val();
+    			if(name.length<2||name.length>10){
+    				$("#register-username").removeClass("form-control is-valid")
+    				$("#register-username").addClass("form-control is-invalid");
+    				flagName=false;
+    			}else{
+    				$("#register-username").removeClass("form-control is-invalid")
+    				$("#register-username").addClass("form-control is-valid");
+    				flagName=true;
+    			}
+    		})
+    		/*验证密码*/
+    		$("#register-password").change(function(){
+    			passWord=$("#register-password").val();
+    			if(passWord.length<6||passWord.length>18){
+    				$("#register-password").removeClass("form-control is-valid")
+    				$("#register-password").addClass("form-control is-invalid");
+    				flagPas=false;
+    			}else{
+    				$("#register-password").removeClass("form-control is-invalid")
+    				$("#register-password").addClass("form-control is-valid");
+    				flagPas=true;
+    			}
+    		})
+    		$("#register-passwords").change(function(){
+    			passWords=$("#register-passwords").val();
+    			if((passWord!=passWords)||(passWords.length<6||passWords.length>18)){
+    				$("#register-passwords").removeClass("form-control is-valid")
+    				$("#register-passwords").addClass("form-control is-invalid");
+    				flagPass=false;
+    			}else{
+    				$("#register-passwords").removeClass("form-control is-invalid")
+    				$("#register-passwords").addClass("form-control is-valid");
+    				flagPass=true;
+    			}
+    		});
+
+    	});
+
+        function check()
+            {
+                console.log(flagEmail,flagName,flagPas,flagPass);
+                if(flagEmail&&flagName&&flagPas&&flagPass){
+
+    				return true
+    			}else {
+    			    if(!flagEmail){
+    					$("#register-email").addClass("form-control is-invalid");
+    				}
+    				if(!flagName){
+    					$("#register-username").addClass("form-control is-invalid");
+    				}
+    				if(!flagPas){
+    					$("#register-password").addClass("form-control is-invalid");
+    				}
+    				if(!flagPass){
+    					$("#register-passwords").addClass("form-control is-invalid");
+    				}
+    				return false
+                }
+            }
+    </script>
+  </body>
+</html>

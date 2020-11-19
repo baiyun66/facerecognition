@@ -1,0 +1,294 @@
+{% extends 'index.html' %}
+{% block page-content %}
+      <style>
+        .timeline {
+            list-style: none;
+            padding: 20px 0 20px;
+            position: relative;
+        }
+
+        .timeline:before {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            content: " ";
+            width: 3px;
+            background-color: #CCCCCC;
+            left: 25px;
+            margin-left: -1.5px;
+        }
+
+        .timeline > li {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+
+        .timeline > li:after {
+            clear: both;
+        }
+
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+
+        .timeline > li:after {
+            clear: both;
+        }
+
+        .timeline > li > .timeline-panel {
+            width: calc(100% - 55px);
+            float: right;
+            border: 1px solid #d4d4d4;
+            border-radius: 22px;
+            padding: 10px;
+            position: relative;
+            -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+        }
+
+        .timeline > li > .timeline-panel:before {
+            position: absolute;
+            top: 26px;
+            left: -15px;
+            display: inline-block;
+        }
+
+        .timeline > li > .timeline-panel:after {
+            position: absolute;
+            top: 27px;
+            left: -14px;
+            display: inline-block;
+        }
+
+        .timeline > li > .timeline-badge {
+            color: #FFFF99;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            font-size: 1.4em;
+            text-align: center;
+            position: absolute;
+            top: 16px;
+            left: 13px;
+
+            background-color: #666666;
+            z-index: 100;
+            border-top-right-radius: 50%;
+            border-top-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            border-bottom-left-radius: 50%;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel {
+            float: left;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel:before {
+            border-left-width: 0;
+            border-right-width: 15px;
+            right: -15px;
+            right: auto;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel:after {
+            border-left-width: 0;
+            border-right-width: 14px;
+            left: -14px;
+            right: auto;
+        }
+
+        .timeline-badge.primary {
+            background-color: #006699 !important;
+        }
+
+        .timeline-badge.up {
+            background-color: #339933 !important;
+        }
+
+        .timeline-badge.down {
+            background-color: #CC3333 !important;
+        }
+
+        .timeline-badge.neutral {
+            background-color: #999999 !important;
+        }
+
+        .timeline-title {
+            margin-top: 0;
+            color: inherit;
+        }
+
+        .timeline-body > p,
+        .timeline-body > ul {
+            margin-bottom: 0;
+        }
+
+        .timeline-body > p + p {
+            margin-top: 5px;
+        }
+    </style>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="gridSystemModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">添加课程</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post">{% csrf_token %}
+                        <div class="form-group">
+                            <label for="recipient-name" id="model_label1" class="control-label">课程大纲:</label>
+                            <input type="text" class="form-control" name="outlines" id="model_input1">
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="control-label" id="model_label2">课程节次:</label>
+                                    <input type="text" class="form-control" name="day_num" id="model_input2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-6 text-right">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button type="submit" class="btn btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-6 col-xs-6">
+                            <h4>{{ class_name }}</h4>
+                        </div>
+                        <div class="col-lg-6 col-xs-6 text-right">
+                            <a class="btn btn-primary btn-sm glyphicon glyphicon-eye-open"  aria-hidden="true"
+                                                   href="{% url 'course_view' class_name.id %}"></a>
+                            <button type="button" class="btn btn-primary btn-sm glyphicon glyphicon-plus"
+                                    aria-hidden="true" data-toggle="modal" data-target="#gridSystemModal"
+                                    data-whatever="@new_course"></button>
+                            <button type="button" class="btn btn-primary btn-sm glyphicon glyphicon-cog "
+                                    aria-hidden="true" data-toggle="modal" data-target="#gridSystemModal"
+                                    data-whatever="@set_class"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                     <div class="container">
+                        <ul class="timeline">
+                             {% for cource_record in course_obj.all %}
+                            <li><!---Time Line Element--->
+                                <div class="timeline-badge up"><i class="fa fa-thumbs-up"></i></div>
+                                <div class="timeline-panel">
+                                    <div class="timeline-heading">
+                                        <h4 class="timeline-title">第{{ cource_record.day_num }}节:{{ cource_record.outlines }}</h4>
+                                    </div>
+                                    <div class="timeline-body"><!---Time Line Body&Content--->
+                                        <p>上课时间：{{ cource_record.date }}</p>
+                                         {% if cource_record.has_sign %}
+                                             <p>有签到</p>
+                                         {% else %}
+                                             <p>没有签到</p>
+                                         {% endif %}
+                                        <p>{{ cource_record.get_state_display }}</p>
+                                        {% if cource_record.state == 2 %}
+                                        <td><a class="btn btn-primary" href="{% url 'teacher_sign'  cource_record.id %}">开始签到</a></td>
+                                        {% else %}
+                                        <td><a  class="btn btn-primary" href="{% url 'teacher_sign'  cource_record.id %}">签到管理</a></td>
+                                        {% endif %}
+                                        <a class="btn btn-danger bg-red"
+                                                   href="{% url 'delete' cource_record.id %}?next={% url 'course_records' class_name.id %}">删除</a>
+
+                                    </div>
+                                </div>
+                            </li>
+                             {% endfor %}
+                        </ul>
+                    </div>
+{#                    <table class="table table-striped ">#}
+{#                        <thead>#}
+{#                        <tr>#}
+{#                            <th>课程节次</th>#}
+{#                            <th>上课日期</th>#}
+{#                            <th>有无签到</th>#}
+{#                            <th>大纲</th>#}
+{#                            <th>签到状态</th>#}
+{#                            <th>签到管理</th>#}
+{#                        </tr>#}
+{#                        </thead>#}
+{#                        <tbody>#}
+{#                        {% for cource_record in course_obj.all %}#}
+{#                            <tr>#}
+{#                                <td>{{ cource_record.day_num }}</td>#}
+{#                                <td>{{ cource_record.date }}</td>#}
+{#                                <td>{{ cource_record.has_sign }}</td>#}
+{#                                <td>{{ cource_record.outlines }}</td>#}
+{#                                <td>{{ cource_record.get_state_display }}</td>#}
+{#                                {% if cource_record.state == 2 %}#}
+{#                                    <td><a href="{% url 'teacher_sign'  cource_record.id %}">开始签到</a></td>#}
+{#                                    {% else %}#}
+{#                                    <td><a href="{% url 'teacher_sign'  cource_record.id %}">签到管理</a></td>#}
+{#                                {% endif %}#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                        </tbody>#}
+{#                    </table>#}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#gridSystemModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var recipient = button.data('whatever'); // Extract info from data-* attributes
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var modal = $(this);
+            var title = modal.find('.modal-title');
+            var lable1 = modal.find('#model_label1');
+            var lable2 = modal.find('#model_label2');
+            var input1 = modal.find('#model_input1');
+            var input2 = modal.find('#model_input2');
+            if (recipient != "@set_class") {
+                title.text("增加课程");
+                lable1.text("课程大纲：");
+                 lable2.text("课程节次：");
+                 input1.attr("name","outlines");
+                input2.attr("name","day_num");
+                input1.val("");
+                var num = parseFloat("{{ class_name.courserecord_set.count}}")+1;
+                input2.val(num);
+
+            }else {
+                 title.text("设置时间");
+                lable1.text("课程时间(分)：");
+                 lable2.text("签到时间(分)：");
+                 input1.attr("name","course_end_time");
+                 input1.val("{{ class_name.course_end_time}}");
+                input2.attr("name","sign_end_time");
+                input2.val("{{ class_name.sign_end_time}}");
+            }
+
+        });
+    </script>
+{% endblock %}

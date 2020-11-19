@@ -1,0 +1,161 @@
+{% extends 'index.html' %}
+
+{% block page-content %}
+    <div class="container">
+        <div class="row main">
+            <div class="col-sm-4 col-md-4">
+                <div class="image-flip">
+                    <div class="mainflip">
+                        <div class="frontside">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <p>
+{#                                        <img class=" img-fluid" alt="Team Cards Flipper"#}
+{#                                             src="http://www.prepbootstrap.com/Content/images/template/people/person1.jpg"/>#}
+                                          <img class=" img-fluid" alt="Team Cards Flipper"
+                                             src="stu_face/{{request.user}}.jpg"/>
+                                    </p>
+                                    <p class="card-text">请上传本人清晰真实完整头像</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <input id="uploadPicture" name="file" type="file" multiple=true class="file-loading">
+                </div>
+            </div>
+            <div class="col-sm-8 col-md-8 text-center">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="text-center">个人信息</h3>
+                        <hr>
+                    </div>
+                    <div class="panel-body">
+                        <form>
+                            <div class="form-group row">
+                                <div class="col-md-4 col-xs-4">
+                                    <label for="name">Name</label>
+                                </div>
+                                <div class="col-md-8 col-xs-8">
+                                    <input type="text" id="name" class="form-control"
+                                           placeholder="{{ request.user.name }}" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-4 col-xs-4">
+                                    <label for="email">E-mail</label>
+                                </div>
+                                <div class="col-md-8 col-xs-8">
+                                    <input type="text" id="email" class="form-control"
+                                           placeholder="{{ request.user }}" disabled>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .main {
+            background: #ffffff;
+            border-bottom: 15px solid #F81D2D;
+            border-top: 15px solid #1E1F23;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            padding: 40px 30px !important;
+            position: relative;
+            box-shadow: 0 1px 21px #808080;
+            font-size: 14px;
+        }
+
+        .main thead {
+            background: #1E1F23;
+            color: #fff;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        .frontside .card .card-body img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+        }
+
+        body {
+            font-family: 'PT Sans', sans-serif;
+        }
+
+        hr {
+            border: 1px solid #354458;
+        }
+
+        .panel {
+            margin-right: 10px;
+        }
+
+        .social > a {
+            width: 100%;
+        }
+
+    </style>
+    <script>
+        $(function () {
+
+            if("{{ student.phone }}"!=="")
+            {
+                $("#phone").attr("placeholder","{{ student.phone }}")
+            }
+             if("{{ student.student_num }}"!=="")
+            {
+                $("#stu_num").attr("placeholder","{{ student.student_num }}")
+            }
+             if("{{ student.qq }}"!=="")
+            {
+                $("#qq").attr("placeholder","{{ student.qq }}")
+            }
+            if ("{{ student.sex }}" === '0')
+            {
+                $("#sex input[value='0']").prop("checked",true);
+            }
+            else {
+                $("#sex input[value='1']").prop("checked",true);
+            }
+            $("#uploadPicture").fileinput({
+                language: 'zh',
+                uploadUrl: "{{ request.path }}uploadPicFile/",
+                previewFileType: "image",
+                uploadAsync: true,
+                showCaption: false,
+                allowedFileExtensions: ["png", "jpg", "jpeg", "ico", "bmp", "gif"],
+                maxFileCount: 1,
+                maxFileSize: 5120,
+                showBrowse: true,
+                dropZoneTitle: '拖拽头像图片到这里...',
+                browseLabel: "选择头像图片",
+                uploadClass: "btn btn-info",
+                uploadLabel: "上传",
+                removeClass: "btn btn-danger",
+                autoReplace: true,
+                autoOrientImage:false,
+                removeLabel: "移除",
+                msgSizeTooLarge: '图片文件太大！',
+                msgFilesTooMany: "选择上传的文件数量为({n}) 超过允许的最大数值({m})！",
+                msgUploadEnd: '图片上传成功！',
+                msgUploadBegin: '初始化中...',
+                msgZoomModalHeading: '图片详情预览',
+                msgInvalidFileExtension: '非法文件扩展名 "{name}"！ 仅支持 "{extensions}" 的文件扩展名！'
+            }).on('fileerror', function (event, data, msg) {
+                alert('图片上传失败！' + msg);
+            }).on('fileuploaded', function (event, data) {
+                $('#uploadPicture').fileinput('disable');
+            }).on('fileclear', function (event) {
+                alert("图片被清除啦！");
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>人脸识别在线签到系统</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="all,follow">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.default.css" id="theme-stylesheet">
+    <script src="/static/js/fileSaver.js"></script>
+</head>
+<style>
+    body {
+        background-color: #EFEDEF;
+    }
+
+    @media (max-width: 500px) {
+        #capt_div {
+            padding-left: 100px;
+        }
+    }
+
+    @media (min-width: 800px) {
+        #capt_div {
+            padding-left: 0px
+        }
+    }
+</style>
+
+<body>
+
+<div class="page login-page">
+    <div class="container d-flex align-items-center">
+        <div class="form-holder has-shadow">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="info d-flex align-items-center bg-primary">
+                        <div class="content">
+                            <div class="logo">
+                                <h1>欢迎登录</h1>
+                            </div>
+                            <p>在线人脸识别签到</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 bg-white">
+                    <div class="content text-center" style=" height:100%; margin-top:100px ">
+                        <h3>点击之后请快速眨眼</h3>
+                        <h5>失败则用密码登录</h5>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-12 col-xs-12"></div>
+                            <div class="col-md-4 col-sm-12 col-xs-12" style="height: 200px" id="capt_div">
+                                <div id="start-recording" style="width: 200px;
+                                         height: 200px;
+                                         position: absolute;
+                                         border-radius: 50%;
+                                         z-index: 1;">
+                                    <div id="videos-container" style="border-radius: 50%; height: 200px;width: 200px"
+                                         onclick="stopRecord()"></div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <br/>
+                        <a href="{% url 'acc_login' %}">密码登录</a>
+                        <small>没有账号?</small>
+                        <a href="{% url 'acc_register' %}" class="signup">注册</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/jquery.validate.min.js"></script><!--表单验证-->
+<script>
+    var mediaStream;
+    var recorderFile;
+    var stopRecordCallback;
+
+    var startBtn = document.getElementById("start-recording");
+
+
+    startBtn.onclick = function () {
+        startRecord();
+    };
+
+    var mediaRecorder;
+    var videosContainer = document.getElementById('videos-container');
+
+    function openCamera() {
+        var len = videosContainer.childNodes.length;
+        for (var i = 0; i < len; i++) {
+            videosContainer.removeChild(videosContainer.childNodes[i]);
+        }
+
+        var video = document.createElement('video');
+
+        var videoWidth = 200;
+        var videoHeight = 200;
+
+        video.controls = false;
+        video.muted = true;
+        video.width = videoWidth;
+        video.height = videoHeight;
+        MediaUtils.getUserMedia(true, false, function (err, stream) {
+            if (err) {
+                throw err;
+            } else {
+                console.log();
+                mediaRecorder = new MediaRecorder(stream);
+                mediaStream = stream;
+                var chunks = [],
+                    startTime = 0;
+                video.srcObject = stream;
+                video.play();
+
+                videosContainer.appendChild(video);
+                mediaRecorder.ondataavailable = function (e) {
+                    mediaRecorder.blobs.push(e.data);
+                    chunks.push(e.data);
+                };
+                mediaRecorder.blobs = [];
+
+                mediaRecorder.onstop = function (e) {
+                    recorderFile = new Blob(chunks, {
+                        'type': mediaRecorder.mimeType
+                    });
+                    chunks = [];
+                    if (null != stopRecordCallback) {
+                        stopRecordCallback();
+                    }
+                };
+            }
+        });
+    }
+    function stopRecord(callback) {
+        stopRecordCallback = callback;
+        mediaRecorder.stop();
+        MediaUtils.closeStream(mediaStream);
+    }
+
+    var MediaUtils = {
+        getUserMedia: function (videoEnable, audioEnable, callback) {
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia || window.getUserMedia;
+            var constraints = {
+                video: videoEnable,
+                audio: audioEnable
+            };
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+                    callback(false, stream);
+                })['catch'](function (err) {
+                    callback(err);
+                });
+            } else if (navigator.getUserMedia) {
+                navigator.getUserMedia(constraints, function (stream) {
+                    callback(false, stream);
+                }, function (err) {
+                    callback(err);
+                });
+            } else {
+                callback(new Error('Not support userMedia'));
+            }
+        },
+
+        closeStream: function (stream) {
+            if (typeof stream.stop === 'function') {
+                stream.stop();
+            } else {
+                let trackList = [stream.getAudioTracks(), stream.getVideoTracks()];
+
+                for (let i = 0; i < trackList.length; i++) {
+                    let tracks = trackList[i];
+                    if (tracks && tracks.length > 0) {
+                        for (let j = 0; j < tracks.length; j++) {
+                            let track = tracks[j];
+                            if (typeof track.stop === 'function') {
+                                track.stop();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    function startRecord() {
+        mediaRecorder.start();
+        setTimeout(function () {
+            // 结束
+            stopRecord(function () {
+                alert("录制成功!");
+                console.log(recorderFile)
+                send();
+            });
+        }, 2000);
+    }
+
+    function send() {
+        var file = new File([recorderFile], 'msr-' + (new Date).toISOString().replace(/:|\./g, '-') + '.mp4', {
+            type: 'video/mp4'
+        });
+
+        var formdata = new FormData();
+        formdata.append('name', "test");
+        formdata.append('myfile', file);
+        $.ajax({
+            type: "post",
+            url: "{{ request.path }}",
+            processData: false,
+            contentType: false,
+            data: formdata,
+            success: function (htmlVal, msg, data) {
+                goto_url = JSON.parse(data.responseText)["msg"];
+                console.log(goto_url);
+                window.location.href = goto_url;
+            },
+            error: function (data) {
+                alert("签到失败，非本人");
+            },
+        })
+    }
+
+    openCamera();
+</script>
+</body>
+</html>

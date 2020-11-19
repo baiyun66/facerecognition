@@ -1,0 +1,155 @@
+{% extends 'index.html' %}
+{% load crm_tags %}
+{% block page-content %}
+    <div class="container">
+    <div class="row">
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>课程</h4>
+                </div>
+
+                    <div id="chart1" class="panel-body" style="width: 100%;height: 300px"></div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>学生</h4>
+                </div>
+                <div id="chart2" class="panel-body" style="height: 300px;width: 100%">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript">
+        {#console.log(document.getElementById('chart1'));#}
+        var myChartarea = echarts.init(document.getElementById('chart1'));
+        var myChartarea2 = echarts.init(document.getElementById('chart2'));
+        var data_x2 = {{ data_x2 |safe}};
+        var data_x ={{ data_x }};
+        var data_x_index = [];
+        for (var i=0;i<data_x.length;i++)
+        {
+           data_x_index.push(i+1);
+        }
+
+        {#console.log(data_x);#}
+        option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['signed', 'late', 'not_arrive', "early_leave"]
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: data_x_index,
+                namedItem: "x_click"
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: 'signed',
+                    type: 'line',
+                    step: 'start',
+                    data: {{ sign_data.signed }}
+                },
+                {
+                    name: 'late',
+                    type: 'line',
+                    step: 'middle',
+                    data: {{ sign_data.late }}
+                },
+                {
+                    name: 'not_arrive',
+                    type: 'line',
+                    step: 'end',
+                    data: {{ sign_data.not_arrive }}
+                },
+                {
+                    name: 'early_leave',
+                    type: 'line',
+                    step: 'end',
+                    data: {{ sign_data.early_leave }}
+                }
+            ]
+        };
+        option2 = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['signed', 'late', 'not_arrive', "early_leave"]
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: data_x2,
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: 'signed',
+                    type: 'line',
+                    step: 'start',
+                    data: {{ sign_data2.signed }}
+                },
+                {
+                    name: 'late',
+                    type: 'line',
+                    step: 'middle',
+                    data: {{ sign_data2.late }}
+                },
+                {
+                    name: 'not_arrive',
+                    type: 'line',
+                    step: 'end',
+                    data: {{ sign_data2.not_arrive }}
+                },
+                {
+                    name: 'early_leave',
+                    type: 'line',
+                    step: 'end',
+                    data: {{ sign_data2.early_leave }}
+                }
+            ]
+        };
+        myChartarea.setOption(option);
+        myChartarea2.setOption(option2);
+        myChartarea.on('click', {element: "x_click"}, function (params) {
+            // 当 name 为 'aaa' 的图形元素被点击时，此回调被触发。
+            console.log(params.name);
+            var k = data_x[parseInt(params.name)-1];
+            window.location.href = "/teacher/teacher_sign/" + k;
+        });
+    </script>
+{% endblock %}

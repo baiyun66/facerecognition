@@ -1,0 +1,98 @@
+{% extends 'index.html' %}
+
+{% block page-content %}
+    <div class="panel panel-default">
+        <div class="panel-heading">学生签到</div>
+        <div class="panel-body" style="height: 340px">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 text-center" style="position: relative;">
+
+                    <div  style="width: 300px;
+            height: 300px;
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1;">
+                        <video id="video" style="border-radius: 50%; height: 300px;width: 300px" autoplay ></video>
+                    </div>
+                    <div style="width: 300px;
+            height: 300px;
+            position: absolute;
+            z-index: 2;
+            border-radius: 50%;
+            background-color: rgba(60, 92, 14, 0.87);" onclick="uploadImage()">
+                    </div>
+            </div>
+             <div class="col-md-4"></div>
+            <canvas id="canvas" style="display:none"></canvas>
+        </div>
+    </div>
+    <script>
+        <!--js代码-->
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        function getUserMedia(constraints, success, error) {
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+            } else if (navigator.webkitGetUserMedia) {
+                navigator.webkitGetUserMedia(constraints, success, error)
+            } else if (navigator.mozGetUserMedia) {
+                navigator.mozGetUserMedia(constraints, success, error);
+            } else if (navigator.getUserMedia) {
+                navigator.getUserMedia(constraints, success, error);
+            }
+        }
+
+        function success(stream) {
+            video.srcObject = stream;
+            video.play();
+        }
+
+        function error(error) {
+            console.log('访问用户媒体设备失败${error.name}, ${error.message}');
+        }
+
+        if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+            getUserMedia({video: {width: 300, height: 300}}, success, error);
+        } else {
+            alert('不支持访问用户媒体');
+        }
+        function uploadImage() {
+            canvas.width = 300;
+            canvas.height = 300;
+            context.drawImage(video, 0, 0, 300, 300);
+            var imgUrl = canvas.toDataURL('image/jpeg');
+            var imageDataB64 = imgUrl.substring(22);
+            imgData = {uploadImg: imageDataB64};
+            var senddata = JSON.stringify(imgData);
+
+
+            var uploadAjax = $.ajax({
+                type: "post",
+                url: "{{ request.path }}",
+                data: senddata,
+                cashe: false,
+                contentType: false,
+                processData: false,
+                timeout: 10000,
+                async: true,
+                success: function (htmlVal) {
+                    alert(htmlVal);
+                    window.location.href = " {% url 'stu_course_records' class_obj.id %} ";
+                },
+                error: function (data) {
+                    alert("签到失败，非本人");
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    if (textStatus == 'timeout') {
+                        uploadAjax.abort();
+                        alert("请求超时，请重试");
+                        closeCard();
+                    }
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}

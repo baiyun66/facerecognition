@@ -1,0 +1,84 @@
+{% extends 'index.html' %}
+
+{% block page-content %}
+    <style type="text/css">
+        #class_list:nth-child(odd) .thumbnail {
+            background-color: #223E87;
+        }
+
+        #class_list:nth-child(even) .thumbnail {
+            background-color: #009688;
+        }
+
+    </style>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="gridSystemModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">添加班级</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post">{% csrf_token %}
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">班级号:</label>
+                            <input type="text" class="form-control" name="class_id" id="recipient-name">
+                            <label id="error" class="errors">{{ error }}</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-6 text-right">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button type="submit" class="btn btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+
+                    <div class="row">
+                        <div class="col-lg-8 col-xs-8">
+                            <h4>我的班级</h4>
+                        </div>
+                        <div class="col-lg-4 col-xs-4 text-right">
+                            <button type="button" class="btn btn-primary btn-sm glyphicon glyphicon-plus"
+                                    aria-hidden="true" data-toggle="modal" data-target="#gridSystemModal"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        {% for class_obj  in class_list_obj %}
+                            <div class="col-sm-6 col-md-3" id="class_list">
+                                <div class="thumbnail">
+                                    <div class="caption" style="color: white">
+                                            <h3>{{ class_obj.course_name }}</h3>
+                                            <p>
+                                            <h5>{{ class_obj.start_date }} To {{ class_obj.end_date }}</h5>
+                                            <h5>已上{{ class_obj.courserecord_set.count }}节</h5></p>
+                                            <p>
+                                                <a class="btn btn-primary"
+                                                   href="{% url 'stu_course_records' class_obj.id %}">进入</a>
+                                            </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Table -->
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>人脸识别在线签到系统</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="all,follow">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.default.css" id="theme-stylesheet">
+    <style type="text/css">
+        @media (max-width: 500px) {
+             #capt_div{
+                padding-left:100px;
+        }
+        }
+        @media (min-width: 800px) {
+            #capt_div{
+                padding-left:0px
+        }
+        }
+    </style>
+</head>
+<body>
+<div class="page login-page">
+    <div class="container d-flex align-items-center">
+        <div class="form-holder has-shadow">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="info d-flex align-items-center bg-primary">
+                        <div class="content">
+                            <div class="logo">
+                                <h1>欢迎登录</h1>
+                            </div>
+                            <p>在线人脸识别签到</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 bg-white">
+                    <div class="content text-center" style=" height:100%; margin-top:100px ">
+                        <h3>点击登录</h3>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-12 col-xs-12"></div>
+                            <div class="col-md-4 col-sm-12 col-xs-12" style="height: 200px" id="capt_div">
+                                <div style="width: 200px;
+                                         height: 200px;
+                                         position: absolute;
+                                         border-radius: 50%;
+                                         z-index: 1;">
+                                    <video id="video" style="border-radius: 50%; height: 200px;width: 200px"
+                                           autoplay></video>
+                                </div>
+                                <div style="width: 200px;
+                                        height: 200px;
+                                        position: absolute;
+                                        z-index: 2;
+                                        border-radius: 50%;
+                                        background-color: rgba(74,37,230,0.87);" onclick="uploadImage()">
+                                </div>
+                                <canvas id="canvas" style="display:none"></canvas>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                        <br/>
+                        <a href="{% url 'acc_login' %}">密码登录</a>
+                        <small>没有账号?</small>
+                        <a href="{% url 'acc_register' %}" class="signup">注册</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/jquery.validate.min.js"></script><!--表单验证-->
+<script src="/static/js/front.js"></script>
+<script>
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    function getUserMedia(constraints, success, error) {
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+        } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia(constraints, success, error)
+        } else if (navigator.mozGetUserMedia) {
+            navigator.mozGetUserMedia(constraints, success, error);
+        } else if (navigator.getUserMedia) {
+            navigator.getUserMedia(constraints, success, error);
+        }
+    }
+
+    function success(stream) {
+        video.srcObject = stream;
+        video.play();
+    }
+
+    function error(error) {
+        console.log('访问用户媒体设备失败${error.name}, ${error.message}');
+    }
+
+    if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+        getUserMedia({video: {width: 300, height: 300}}, success, error);
+    } else {
+        alert('不支持访问用户媒体');
+    }
+    function uploadImage() {
+        canvas.width = 300;
+        canvas.height = 300;
+
+        context.drawImage(video, 0, 0, 300, 300);
+        var imgUrl = canvas.toDataURL('image/jpeg');
+        var imageDataB64 = imgUrl.substring(22);
+        imgData = {uploadImg: imageDataB64};
+        var senddata = JSON.stringify(imgData);
+
+        var uploadAjax = $.ajax({
+            type: "post",
+            url: "{{ request.path }}",
+            data: senddata,
+            cashe: false,
+            contentType: false,
+            processData: false,
+            timeout: 10000,
+            async: true,
+            success: function (htmlVal, msg, data) {
+                goto_url = JSON.parse(data.responseText)["msg"];
+                console.log(goto_url);
+                window.location.href = goto_url;
+            },
+            error: function (data) {
+                alert("签到失败，非本人");
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                if (textStatus == 'timeout') {
+                    uploadAjax.abort();
+                    alert("请求超时，请重试")
+                    closeCard();
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

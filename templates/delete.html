@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+{% load crm_tags %}
+{% block page-content %}
+    <style type="text/css">
+        #class_list:nth-child(odd) .thumbnail {
+            background-color: #223E87;
+        }
+
+        #class_list:nth-child(even) .thumbnail {
+            background-color: #009688;
+        }
+
+    </style>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+
+                    <div class="row">
+                        <div class="col-lg-8 col-xs-8">
+                            <h4>删除</h4>
+                        </div>
+                        <div class="col-lg-4 col-xs-4 text-right">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        {% display_obj_related obj %}
+                        <form method="post">{% csrf_token %}
+                            <input type="submit" class="btn btn-danger" value="Yes,I'm sure">
+                            <input type="hidden" value="yes" name="delete_confirm">
+                            <a class ="btn btn-info" href="{{ from_url }}">No, Take me back </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

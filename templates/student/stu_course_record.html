@@ -1,0 +1,240 @@
+{% extends 'index.html' %}
+{% load tags %}
+{% block page-content %}
+    <style>
+        .timeline {
+            list-style: none;
+            padding: 20px 0 20px;
+            position: relative;
+        }
+
+        .timeline:before {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            content: " ";
+            width: 3px;
+            background-color: #CCCCCC;
+            left: 25px;
+            margin-left: -1.5px;
+        }
+
+        .timeline > li {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+
+        .timeline > li:after {
+            clear: both;
+        }
+
+        .timeline > li:before,
+        .timeline > li:after {
+            content: " ";
+            display: table;
+        }
+
+        .timeline > li:after {
+            clear: both;
+        }
+
+        .timeline > li > .timeline-panel {
+            width: calc(100% - 55px);
+            float: right;
+            border: 1px solid #d4d4d4;
+            border-radius: 22px;
+            padding: 10px;
+            position: relative;
+            -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+        }
+
+        .timeline > li > .timeline-panel:before {
+            position: absolute;
+            top: 26px;
+            left: -15px;
+            display: inline-block;
+        }
+
+        .timeline > li > .timeline-panel:after {
+            position: absolute;
+            top: 27px;
+            left: -14px;
+            display: inline-block;
+        }
+
+        .timeline > li > .timeline-badge {
+            color: #FFFF99;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            font-size: 1.4em;
+            text-align: center;
+            position: absolute;
+            top: 16px;
+            left: 13px;
+
+            background-color: #666666;
+            z-index: 100;
+            border-top-right-radius: 50%;
+            border-top-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            border-bottom-left-radius: 50%;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel {
+            float: left;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel:before {
+            border-left-width: 0;
+            border-right-width: 15px;
+            right: -15px;
+            right: auto;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel:after {
+            border-left-width: 0;
+            border-right-width: 14px;
+            left: -14px;
+            right: auto;
+        }
+
+
+
+        .timeline-badge.up {
+            background-color: #339933 !important;
+        }
+
+
+        .timeline-title {
+            margin-top: 0;
+            color: inherit;
+        }
+
+        .timeline-body > p,
+        .timeline-body > ul {
+            margin-bottom: 0;
+        }
+
+        .timeline-body > p + p {
+            margin-top: 5px;
+        }
+    </style>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="gridSystemModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">签到详情</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                    <div  class="col-md-9" >
+                        <div id="chart1" style="height: 300px;width: 300px"></div>
+                    </div>
+                         <div class="col-md-1"></div>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-8 col-xs-8">
+                            <h4>{{ class_name }}</h4>
+                        </div>
+                        <div class="col-lg-4 col-xs-4 text-right">
+                            <button type="button" class="btn btn-primary btn-sm glyphicon glyphicon-eye-open"
+                                    aria-hidden="true" data-toggle="modal" data-target="#gridSystemModal"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="container">
+                        <ul class="timeline">
+                            {% for cource_record in course_obj.all %}
+                                <li><!---Time Line Element--->
+                                    <div class="timeline-badge up"><i class="fa fa-thumbs-up"></i></div>
+                                    <div class="timeline-panel">
+                                        <div class="timeline-heading">
+                                             <h4 class="timeline-title">第{{ cource_record.day_num }}节:{{ cource_record.outlines }}</h4>
+                                        </div>
+                                        <div class="timeline-body"><!---Time Line Body&Content--->
+                                            <p>{{ cource_record.date }}</p>
+                                            {% if cource_record.has_sign %}
+                                                <p>有签到</p>
+                                            {% else %}
+                                                <p>没有签到</p>
+                                            {% endif %}
+                                            <p>{{ cource_record.get_state_display }}</p>
+                                            {% build_state cource_record request.user %}
+
+
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Table -->
+    </div>
+     <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript">
+        console.log(document.getElementById('chart1'));
+        var myChartarea = echarts.init(document.getElementById('chart1'));
+        option = {
+            title: {
+                text: '签到详情',
+                subtext: '刷新更新',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
+            },
+            legend: {
+                bottom: 10,
+                left: 'center',
+                data: ['签到', '迟到', '早退', '未到']
+            },
+            series: [
+                {
+                    type: 'pie',
+                    radius: '65%',
+                    center: ['50%', '50%'],
+                    selectedMode: 'single',
+                    data: [
+                        {value: parseInt({{class_sign_obj.signed}}), name: '签到'},
+                        {value: parseInt({{class_sign_obj.late}}), name: '迟到'},
+                        {value: parseInt({{class_sign_obj.early_leave}}), name: '早退'},
+                        {value: parseInt({{class_sign_obj.not_arrive}}), name: '未到'}
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+        myChartarea.setOption(option);
+    </script>
+{% endblock %}
